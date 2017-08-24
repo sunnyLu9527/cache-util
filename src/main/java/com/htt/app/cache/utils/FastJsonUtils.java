@@ -13,7 +13,8 @@ import java.util.*;
 public class FastJsonUtils {
 
     public static String parseJson(Object o){
-        return JSON.toJSONString(o);
+//        return JSON.toJSONString(o);
+        return JSON.toJSONStringWithDateFormat(o, "yyyy-MM-dd HH:mm:ss.SSS");//解决fastjson默认将date或timestamp类型转换成long的问题
     }
 
     /**
