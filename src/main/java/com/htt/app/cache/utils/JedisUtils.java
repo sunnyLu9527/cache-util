@@ -68,12 +68,12 @@ public class JedisUtils {
         }
 
         jedisPoolConfig = new JedisPoolConfig();
-        jedisPoolConfig.setMaxTotal(100);
-        jedisPoolConfig.setMaxIdle(100);
-        jedisPoolConfig.setTestOnBorrow(true);
+        jedisPoolConfig.setMaxTotal(100);//最大连接数
+        jedisPoolConfig.setMaxIdle(100);//最大空闲连接数
+        jedisPoolConfig.setTestOnBorrow(true);//在获取连接的时候检查有效性
 
         jedisPoolConfig.setMinIdle(8);//设置最小空闲数
-        jedisPoolConfig.setMaxWaitMillis(10000);
+        jedisPoolConfig.setMaxWaitMillis(10000);//设置连接最大等待时间
         jedisPoolConfig.setTestOnReturn(true);
         //在空闲时检查连接池有效性
         jedisPoolConfig.setTestWhileIdle(true);
