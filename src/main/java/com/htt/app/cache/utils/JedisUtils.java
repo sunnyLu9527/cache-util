@@ -115,6 +115,17 @@ public class JedisUtils {
         }
     }
 
+    public static String getFromJedis(String key,int dataBase){
+        Jedis jedis = null;
+        try {
+            jedis = getJedis(dataBase);
+            String value = jedis.get(HTT + key);
+            return value;
+        } finally {
+            returnJedis(dataBase,jedis);
+        }
+    }
+
     public static Map<String, Object> setSingleCache(Map<String, Object> map ,Integer dataBase,String key){
     	Jedis jedis = null;
     	try{
