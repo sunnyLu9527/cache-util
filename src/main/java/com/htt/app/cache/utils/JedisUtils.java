@@ -46,11 +46,6 @@ public class JedisUtils {
         return jedis;
     }
 
-    public static void returnResource(int database, Jedis jedis) {
-        JedisPool pool = (JedisPool)pools.get(Integer.valueOf(database));
-        pool.returnResource(jedis);
-    }
-
     static {
         if(!StringUtils.isEmpty(sPort) && StringUtils.isNumeric(sPort)) {
             port = StringUtils.stringToInteger(sPort);
@@ -89,19 +84,19 @@ public class JedisUtils {
         Jedis jedis = getJedis(dataBase);
         jedis.hset(HTT+key,field,value);
         jedis.expire(HTT + key,THREE_DAY_CACHE);
-        returnJedis(dataBase,jedis);
+        returnJedis(jedis);
     }
 
     public static void hsetexToJedis(String key,String field,String value,int expire,int dataBase){
         Jedis jedis = getJedis(dataBase);
         jedis.hset(HTT+key,field,value);
         jedis.expire(HTT + key,expire);
-        returnJedis(dataBase,jedis);
+        returnJedis(jedis);
     }
     public static void hsetToJedis(String key,String field,String value,int dataBase){
         Jedis jedis = getJedis(dataBase);
         jedis.hset(HTT+key,field,value);
-        returnJedis(dataBase,jedis);
+        returnJedis(jedis);
     }
 
     public static String getFromJedis(String key,String field,int dataBase){
@@ -111,7 +106,7 @@ public class JedisUtils {
             String value = jedis.hget(HTT + key, field);
             return value;
         } finally {
-            returnJedis(dataBase,jedis);
+            returnJedis(jedis);
         }
     }
 
@@ -122,7 +117,7 @@ public class JedisUtils {
             String value = jedis.get(HTT + key);
             return value;
         } finally {
-            returnJedis(dataBase,jedis);
+            returnJedis(jedis);
         }
     }
 
@@ -134,9 +129,7 @@ public class JedisUtils {
     		jedis.set(key, json);
             jedis.expire(key, ONE_DAY_CACHE);
     	}finally{
-    		if(jedis != null){
-    			returnResource(dataBase, jedis);
-    		}
+            returnJedis(jedis);
     	}
         return map;
     }
@@ -152,9 +145,7 @@ public class JedisUtils {
 				return null;
 			}
 		}finally{
-			if (jedis != null){
-				returnResource(dataBase, jedis);
-			}
+            returnJedis(jedis);
 		}
 	}
     public static Boolean isExists(String key,String field,int dataBase){
@@ -164,7 +155,7 @@ public class JedisUtils {
             Boolean result = jedis.hexists(HTT + key,field);
             return result;
         } finally {
-            returnJedis(dataBase,jedis);
+            returnJedis(jedis);
         }
     }
 
@@ -176,7 +167,7 @@ public class JedisUtils {
                 jedis.del(HTT+key);
             }
         } finally {
-            returnJedis(dataBase,jedis);
+            returnJedis(jedis);
         }
     }
 
@@ -197,13 +188,12 @@ public class JedisUtils {
                 jedis.del(keySet.toArray(new String[keySet.size()]));
             }
         } finally {
-            returnJedis(dataBase,jedis);
+            returnJedis(jedis);
         }
     }
 
     /**
      * 模糊匹配key
-     * @param dataBase
      * @param pattern
      * @return
      */
@@ -211,9 +201,9 @@ public class JedisUtils {
         return jedis.keys("*"+source.getDes()+"*"+pattern+"*");
     }
 
-    public static void returnJedis(int dataBase,Jedis jedis){
+    public static void returnJedis(Jedis jedis){
         if (jedis != null){
-            returnResource(dataBase,jedis);
+            jedis.close();
         }
     }
 }
