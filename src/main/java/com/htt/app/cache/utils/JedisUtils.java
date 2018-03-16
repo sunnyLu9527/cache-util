@@ -99,6 +99,19 @@ public class JedisUtils {
         returnJedis(jedis);
     }
 
+    public static void setToJedis(String key,String value,int dataBase){
+        Jedis jedis = getJedis(dataBase);
+        jedis.set(HTT + key, value);
+        returnJedis(jedis);
+    }
+
+    public static void setexToJedis(String key,String value,int expire,int dataBase){
+        Jedis jedis = getJedis(dataBase);
+        jedis.set(HTT + key, value);
+        jedis.expire(HTT + key,expire);
+        returnJedis(jedis);
+    }
+
     public static String getFromJedis(String key,String field,int dataBase){
         Jedis jedis = null;
         try {

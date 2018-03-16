@@ -6,7 +6,7 @@
 
     <groupId>com.htt.app</groupId>
     <artifactId>cache-utils</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0.2-SNAPSHOT</version>
 
     <build>
         <resources>
