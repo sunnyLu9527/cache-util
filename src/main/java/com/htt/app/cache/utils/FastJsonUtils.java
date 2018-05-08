@@ -1,6 +1,7 @@
 package com.htt.app.cache.utils;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
 import com.htt.framework.util.PagingResult;
 
@@ -58,10 +59,17 @@ public class FastJsonUtils {
         return pagingResult;
     }
 
-    public static Map<String, Object> JsonToMap(String jsonString) {
-        Map<String, Object> map = new HashMap<String, Object>();
+    public static <T> Map<String, T> JsonToMap(String jsonString,Class<T> cls) {
+        Map<String, T> map = new HashMap<String, T>();
         try {
-            map = JSON.parseObject(jsonString, new TypeReference<Map<String, Object>>(){});
+            map = JSON.parseObject(jsonString, new TypeReference<Map<String, T>>(){});
+            JSONObject obj = JSON.parseObject(jsonString);
+            Iterator<Map.Entry<String, Object>> iterator = obj.entrySet().iterator();
+            while (iterator.hasNext()){
+                Map.Entry<String, Object> entry = iterator.next();
+                T t = JSON.parseObject(entry.getValue().toString(), cls);
+                map.put(entry.getKey(),t);
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }

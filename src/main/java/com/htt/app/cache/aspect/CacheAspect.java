@@ -81,7 +81,7 @@ public class CacheAspect {
         if (returnType.isAssignableFrom(List.class)) {
             return FastJsonUtils.JsonToList(jsonString,modelType);
         } else if (returnType.isAssignableFrom(Map.class)){
-            return FastJsonUtils.JsonToMap(jsonString);
+            return FastJsonUtils.JsonToMap(jsonString,modelType);
         } else if (returnType.isAssignableFrom(PagingResult.class)){
             return FastJsonUtils.JsonToPagingResult(jsonString,modelType);
         } else {

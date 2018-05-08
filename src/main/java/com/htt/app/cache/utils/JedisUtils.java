@@ -153,7 +153,7 @@ public class JedisUtils {
 			jedis = getJedis(dataBase);
 			String json = jedis.get(key);
 			if (StringUtils.isNotEmpty(json)){
-				return FastJsonUtils.JsonToMap(json);
+				return FastJsonUtils.JsonToMap(json,Object.class);
 			}else{
 				return null;
 			}
