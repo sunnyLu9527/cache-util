@@ -13,6 +13,7 @@ public enum CacheSource {
     WARRANT_SERVICE("WarrantService"),
     MATERIAL_SERVICE("MaterialService"),
     DEBT_SERVICE("DebtService"),
+    CASHLOAN_SERVICE("CashLoanService"),
     PRODUCT_SERVICE("ProductService");
 
     /**
