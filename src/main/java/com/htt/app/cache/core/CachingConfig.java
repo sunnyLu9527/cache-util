@@ -1,5 +1,6 @@
 package com.htt.app.cache.core;
 
+import com.alibaba.fastjson.support.spring.GenericFastJsonRedisSerializer;
 import com.htt.framework.util.PropertiesUtils;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CachingConfigurerSupport;
@@ -76,10 +77,10 @@ public class CachingConfig extends CachingConfigurerSupport {
         //redisTemplate默认使用JdkSerializationRedisSerializer 序列化key 此处使用String来做序列化
         template.setKeySerializer(new StringRedisSerializer());
         template.setHashKeySerializer(new StringRedisSerializer());
-//        template.setDefaultSerializer(new GenericJackson2JsonRedisSerializer());
+//        template.setDefaultSerializer(new GenericFastJsonRedisSerializer());
         //redisTemplate默认使用JdkSerializationRedisSerializer 序列化value 此处使用json来做序列化
-        template.setValueSerializer(new GenericJackson2JsonRedisSerializer());
-        template.setHashValueSerializer(new GenericJackson2JsonRedisSerializer());
+        template.setValueSerializer(new GenericFastJsonRedisSerializer());
+        template.setHashValueSerializer(new GenericFastJsonRedisSerializer());
 //        template.afterPropertiesSet();
         return template;
     }
