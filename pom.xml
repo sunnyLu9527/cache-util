@@ -6,7 +6,7 @@
 
     <groupId>com.htt.app</groupId>
     <artifactId>cache-utils</artifactId>
-    <version>1.0.4-SNAPSHOT</version>
+    <version>1.0.5-SNAPSHOT</version>
 
     <build>
         <resources>
@@ -121,6 +121,12 @@
             <groupId>com.alibaba</groupId>
             <artifactId>fastjson</artifactId>
             <version>1.2.45</version>
+        </dependency>
+
+        <dependency>
+            <groupId>net.sf.ehcache</groupId>
+            <artifactId>ehcache</artifactId>
+            <version>2.10.5</version>
         </dependency>
 
         <dependency>

@@ -18,4 +18,5 @@ public @interface AopCacheable {
     Class[] keys();//对应redis中的key
     int expires() default 0;//过期时间
     CacheSource source();//来源 例：pledge_service
+    boolean ehcacheEnable() default false; //是否启用ehcache本地缓存
 }
