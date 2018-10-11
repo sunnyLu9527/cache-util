@@ -25,6 +25,7 @@ public class CacheAspect {
 
     @Around(value = "pointcut(cacheRead)")
     public Object readCache(ProceedingJoinPoint jp,AopCacheable cacheRead) throws Throwable{
+        //TODO redis缓存层异常 接口不能失败
         CacheHandlerFactory handlerFactory = new CacheHandlerFactory().getInstance(cacheRead);
         return handlerFactory.readCache(jp, cacheRead);
     }

@@ -211,6 +211,7 @@ public class JedisUtils {
      * @return
      */
     private static Set<String> getKeysByPattern(Jedis jedis,String pattern,CacheSource source){
+        //TODO 清除缓存时keys全局查损耗性能
         return jedis.keys("*"+source.getDes()+"*"+pattern+"*");
     }
 

@@ -2,8 +2,10 @@ package com.htt.app.cache.handler;
 
 import com.htt.app.cache.annotation.AopCacheable;
 import com.htt.app.cache.enums.CacheSource;
+import com.htt.app.cache.enums.ExpiresPattern;
 import com.htt.app.cache.utils.FastJsonUtils;
 import com.htt.app.cache.utils.JedisUtils;
+import com.htt.app.cache.utils.RedisUtils;
 import com.htt.app.cache.utils.ehcache.EhcacheUtils;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;
@@ -45,13 +47,14 @@ public class RedisCacheHandler extends CacheHandler {
             String json = FastJsonUtils.parseJson(result);
 
             // 序列化结果放入缓存
-            if (cacheRead.expires() > 0){
-                JedisUtils.hsetexToJedis(key,field,json,cacheRead.expires(),JedisUtils.DATA_BASE);
+            int expire = cacheRead.expires() != 0 ? cacheRead.expires() : RedisUtils.getExpire(cacheRead.expiresPattern());//兼容老的 expire属性设了就用expire，没设就用expiresPattern读取 TODO 后面要改造
+            if (expire > 0){
+                JedisUtils.hsetexToJedis(key,field,json,expire,JedisUtils.DATA_BASE);
             } else {
                 JedisUtils.hsetToJedis(key, field, json, JedisUtils.DATA_BASE);
             }
             if (cacheRead.ehcacheEnable()){//放入ehcache
-                EhcacheUtils.getInstance().put("eternalCache",ecacheKey,json);
+                EhcacheUtils.getInstance().put(cacheRead.expiresPattern(),ecacheKey,json);
             }
         } else {
             // 缓存命中
@@ -60,6 +63,9 @@ public class RedisCacheHandler extends CacheHandler {
 
             // 反序列化从缓存中拿到的json
             String jsonString = JedisUtils.getFromJedis(key,field,JedisUtils.DATA_BASE);
+            if("null".equalsIgnoreCase(jsonString)){
+                return null;
+            }
             result = deserialize(jsonString, returnType, cacheRead.type());
         }
 

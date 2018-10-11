@@ -4,6 +4,8 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
 import com.htt.framework.util.PagingResult;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 
 import java.util.*;
 
@@ -12,6 +14,8 @@ import java.util.*;
  * Created by sunnyLu on 2017/2/14.
  */
 public class FastJsonUtils {
+
+    static Logger logger = LogManager.getLogger(FastJsonUtils.class);
 
     public static String parseJson(Object o){
 //        return JSON.toJSONString(o);
@@ -29,7 +33,7 @@ public class FastJsonUtils {
         try {
             t = JSON.parseObject(jsonString, cls);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Json Deserialize Error:"+jsonString+","+cls.getSimpleName(),e);
         }
         return t;
     }
@@ -39,7 +43,7 @@ public class FastJsonUtils {
         try {
             list = JSON.parseArray(jsonString, cls);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Json Deserialize Error:"+jsonString+","+cls.getSimpleName(),e);
         }
         return list;
     }
@@ -54,7 +58,7 @@ public class FastJsonUtils {
             List<T> list = JSON.parseArray(JSON.parseObject(jsonString).getString("rows"), cls);
             pagingResult.setRows(list);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Json Deserialize Error:"+jsonString+","+cls.getSimpleName(),e);
         }
         return pagingResult;
     }
@@ -71,7 +75,7 @@ public class FastJsonUtils {
                 map.put(entry.getKey(),t);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Json Deserialize Error:"+jsonString+","+cls.getSimpleName(),e);
         }
         return map;
     }
@@ -81,7 +85,7 @@ public class FastJsonUtils {
         try {
             map = JSON.parseObject(jsonString, new TypeReference<LinkedHashMap<String, Object>>(){});
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Json Deserialize Error:"+jsonString,e);
         }
         return map;
     }
@@ -91,7 +95,7 @@ public class FastJsonUtils {
         try {
             list = JSON.parseObject(jsonString, new TypeReference<List<Map<String, Object>>>(){});
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Json Deserialize Error:"+jsonString,e);
         }
         return list;
     }

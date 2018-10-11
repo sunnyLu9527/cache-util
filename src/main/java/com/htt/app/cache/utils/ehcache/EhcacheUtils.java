@@ -1,11 +1,15 @@
 package com.htt.app.cache.utils.ehcache;
 
 
+import com.alibaba.fastjson.JSON;
+import com.htt.framework.util.PropertiesUtils;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
+import org.apache.commons.lang.StringUtils;
 
 import java.net.URL;
+import java.util.List;
 
 public class EhcacheUtils {
     private static final String path = "/ehcache.xml";
@@ -19,6 +23,17 @@ public class EhcacheUtils {
     private EhcacheUtils(String path) {
         url = getClass().getResource(path);
         manager = CacheManager.create(url);
+
+        //从zookeeper配置ehcache
+        String json = PropertiesUtils.getProperty("ehcache-service");
+        if (StringUtils.isNotBlank(json)) {
+            List<CacheConfig> list = JSON.parseArray(json, CacheConfig.class);
+            if (list!=null && !list.isEmpty()) {
+                for (CacheConfig row : list) {
+                    manager.addCache(row.toCache());
+                }
+            }
+        }
     }
 
     public static EhcacheUtils getInstance() {

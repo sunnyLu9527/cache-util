@@ -1,6 +1,7 @@
 package com.htt.app.cache.handler;
 
 import com.htt.app.cache.annotation.AopCacheable;
+import com.htt.app.cache.enums.ExpiresPattern;
 import com.htt.app.cache.utils.ehcache.EhcacheUtils;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;
@@ -29,11 +30,14 @@ public class EhCacheHandler extends CacheHandler {
         String ecacheKey = genEcacheKey(clazzName,methodName,args,cacheRead.source());
         Object result = null;
 
-        if (EhcacheUtils.getInstance().isExists("eternalCache",ecacheKey)){
+        if (EhcacheUtils.getInstance().isExists(cacheRead.expiresPattern(),ecacheKey)){
             // 缓存命中
             // 得到被代理方法的返回值类型
             Class returnType = ((MethodSignature) jp.getSignature()).getReturnType();
-            String jsonString = EhcacheUtils.getInstance().get("eternalCache",ecacheKey);
+            String jsonString = EhcacheUtils.getInstance().get(cacheRead.expiresPattern(),ecacheKey);
+            if("null".equalsIgnoreCase(jsonString)){
+                return null;
+            }
             result = deserialize(jsonString, returnType, cacheRead.type());
             return result;
         }
