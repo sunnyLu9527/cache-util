@@ -2,15 +2,18 @@ package com.htt.app.cache.utils.ehcache;
 
 
 import com.alibaba.fastjson.JSON;
-import com.htt.framework.util.PropertiesUtils;
+import com.htt.app.cache.utils.PropertiesUtils;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
-import org.apache.commons.lang.StringUtils;
+import org.springframework.util.StringUtils;
 
 import java.net.URL;
 import java.util.List;
 
+/**
+ * ehcache工具类
+ */
 public class EhcacheUtils {
     private static final String path = "/ehcache.xml";
 
@@ -24,12 +27,12 @@ public class EhcacheUtils {
         url = getClass().getResource(path);
         manager = CacheManager.create(url);
 
-        //从zookeeper配置ehcache
+        //自动化构建manager，从zookeeper配置ehcache
         String json = PropertiesUtils.getProperty("ehcache-service");
-        if (StringUtils.isNotBlank(json)) {
-            List<CacheConfig> list = JSON.parseArray(json, CacheConfig.class);
+        if (!StringUtils.isEmpty(json)) {
+            List<EhcacheCacheConfig> list = JSON.parseArray(json, EhcacheCacheConfig.class);
             if (list!=null && !list.isEmpty()) {
-                for (CacheConfig row : list) {
+                for (EhcacheCacheConfig row : list) {
                     manager.addCache(row.toCache());
                 }
             }
@@ -45,12 +48,14 @@ public class EhcacheUtils {
 
     public void put(String cacheName, String key, Object value) {
         Cache cache = get(cacheName);
+        if (cache == null) return;
         Element element = new Element(key, value);
         cache.put(element);
     }
 
     public String get(String cacheName, String key) {
         Cache cache = get(cacheName);
+        if (cache == null) return null;
         Element element = cache.get(key);
         return element == null ? null : element.getObjectValue().toString();
     }
@@ -61,6 +66,7 @@ public class EhcacheUtils {
 
     public Boolean isExists(String cacheName,String key){
         Cache cache = get(cacheName);
+        if (cache == null) return false;
         Element element = cache.getQuiet(key);
         return element != null && !element.isExpired();
 
@@ -70,6 +76,7 @@ public class EhcacheUtils {
 
     public void remove(String cacheName, String key) {
         Cache cache = get(cacheName);
+        if (cache == null) return;
         cache.remove(key);
     }
 }

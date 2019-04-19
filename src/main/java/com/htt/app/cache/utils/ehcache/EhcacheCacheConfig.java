@@ -4,7 +4,12 @@ import java.io.Serializable;
 
 import net.sf.ehcache.Cache;
 
-public class CacheConfig implements Serializable {
+/**
+ * Cache构建类 从zk读取属性进行构建
+ * @see #toCache()
+ * @see EhcacheUtils#EhcacheUtils(String)
+ */
+public class EhcacheCacheConfig implements Serializable {
 	private static final long serialVersionUID = -1334731656734993971L;
 	private String name;
 	private int maxElementsInMemory;
@@ -14,7 +19,7 @@ public class CacheConfig implements Serializable {
 	private boolean overflowToDisk;
 	@Override
 	public String toString() {
-		return "CacheConfig [name=" + name + ", maxElementsInMemory=" + maxElementsInMemory + ", eternal=" + eternal
+		return "EhcacheCacheConfig [name=" + name + ", maxElementsInMemory=" + maxElementsInMemory + ", eternal=" + eternal
 				+ ", timeToIdleSeconds=" + timeToIdleSeconds + ", timeToLiveSeconds=" + timeToLiveSeconds
 				+ ", overflowToDisk=" + overflowToDisk + "]";
 	}

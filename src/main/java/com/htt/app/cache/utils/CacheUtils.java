@@ -1,17 +1,20 @@
 package com.htt.app.cache.utils;
 
 
-import com.htt.framework.util.PropertiesUtils;
+
+import org.springframework.util.StringUtils;
 
 import java.util.Map;
 
-public class RedisUtils {
+public class CacheUtils {
 
     static Map<String,Integer> expireMap;
 
     static {
         String json = PropertiesUtils.getProperty("rediscache-service");
-        expireMap = FastJsonUtils.JsonToMap(json,Integer.class);
+        if (!StringUtils.isEmpty(json)){
+            expireMap = FastJsonUtils.JsonToMap(json,Integer.class);
+        }
     }
 
     /**

@@ -3,7 +3,6 @@ package com.htt.app.cache.handler;
 import com.htt.app.cache.annotation.AopCacheable;
 import com.htt.app.cache.enums.CacheSource;
 import com.htt.app.cache.utils.FastJsonUtils;
-import com.htt.framework.util.PagingResult;
 import org.aspectj.lang.ProceedingJoinPoint;
 
 import java.util.List;
@@ -25,8 +24,6 @@ public abstract class CacheHandler {
             return FastJsonUtils.JsonToList(jsonString,modelType);
         } else if (returnType.isAssignableFrom(Map.class)){
             return FastJsonUtils.JsonToMap(jsonString,modelType);
-        } else if (returnType.isAssignableFrom(PagingResult.class)){
-            return FastJsonUtils.JsonToPagingResult(jsonString,modelType);
         } else {
             // 序列化
             return FastJsonUtils.JsonToEntity(jsonString,returnType);

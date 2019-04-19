@@ -2,10 +2,9 @@ package com.htt.app.cache.handler;
 
 import com.htt.app.cache.annotation.AopCacheable;
 import com.htt.app.cache.enums.CacheSource;
-import com.htt.app.cache.enums.ExpiresPattern;
 import com.htt.app.cache.utils.FastJsonUtils;
 import com.htt.app.cache.utils.JedisUtils;
-import com.htt.app.cache.utils.RedisUtils;
+import com.htt.app.cache.utils.CacheUtils;
 import com.htt.app.cache.utils.ehcache.EhcacheUtils;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;
@@ -47,7 +46,7 @@ public class RedisCacheHandler extends CacheHandler {
             String json = FastJsonUtils.parseJson(result);
 
             // 序列化结果放入缓存
-            int expire = cacheRead.expires() != 0 ? cacheRead.expires() : RedisUtils.getExpire(cacheRead.expiresPattern());//兼容老的 expire属性设了就用expire，没设就用expiresPattern读取 TODO 后面要改造
+            int expire = cacheRead.expires() != 0 ? cacheRead.expires() : CacheUtils.getExpire(cacheRead.expiresPattern());//兼容老的 expire属性设了就用expire，没设就用expiresPattern读取 TODO 后面要改造
             if (expire > 0){
                 JedisUtils.hsetexToJedis(key,field,json,expire,JedisUtils.DATA_BASE);
             } else {

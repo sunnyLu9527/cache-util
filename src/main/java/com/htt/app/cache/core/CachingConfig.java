@@ -1,7 +1,7 @@
 package com.htt.app.cache.core;
 
 import com.alibaba.fastjson.support.spring.GenericFastJsonRedisSerializer;
-import com.htt.framework.util.PropertiesUtils;
+import com.htt.app.cache.utils.PropertiesUtils;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CachingConfigurerSupport;
 import org.springframework.cache.annotation.EnableCaching;

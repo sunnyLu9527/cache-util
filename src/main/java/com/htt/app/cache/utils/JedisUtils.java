@@ -2,8 +2,7 @@ package com.htt.app.cache.utils;
 
 
 import com.htt.app.cache.enums.CacheSource;
-import com.htt.framework.util.PropertiesUtils;
-import com.htt.framework.util.StringUtils;
+import org.springframework.util.StringUtils;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
@@ -24,8 +23,8 @@ public class JedisUtils {
     public final static Integer THREE_DAY_CACHE=3600*24*3;
 
     static final Map<Integer, JedisPool> pools = new HashMap();
-    static String host = PropertiesUtils.getProperty("redis.host");
-    static String sPort = PropertiesUtils.getProperty("redis.port");
+    static String host = System.getProperty("redis_host");
+    static String sPort = System.getProperty("redis_port");
     static int port = 6379;
     static String password;
     static String sTimeout;
@@ -47,17 +46,17 @@ public class JedisUtils {
     }
 
     static {
-        if(!StringUtils.isEmpty(sPort) && StringUtils.isNumeric(sPort)) {
-            port = StringUtils.stringToInteger(sPort);
+        if(!StringUtils.isEmpty(sPort)) {
+            port = Integer.valueOf(sPort);
         }
 
-        sTimeout = PropertiesUtils.getProperty("redis.timeout");
+        sTimeout = System.getProperty("redis_timeout");
         timeout = 2000;
-        if(!StringUtils.isEmpty(sTimeout) && StringUtils.isNumeric(sTimeout)) {
-            timeout = StringUtils.stringToInteger(sTimeout);
+        if(!StringUtils.isEmpty(sTimeout)) {
+            timeout = Integer.valueOf(sTimeout);
         }
 
-        password = PropertiesUtils.getProperty("redis.password");
+        password = System.getProperty("redis_password");
         if(StringUtils.isEmpty(password)) {
             password = null;
         }
@@ -152,7 +151,7 @@ public class JedisUtils {
 		try{
 			jedis = getJedis(dataBase);
 			String json = jedis.get(key);
-			if (StringUtils.isNotEmpty(json)){
+			if (!StringUtils.isEmpty(json)){
 				return FastJsonUtils.JsonToMap(json,Object.class);
 			}else{
 				return null;

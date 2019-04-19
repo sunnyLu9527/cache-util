@@ -7,13 +7,15 @@ import com.htt.app.cache.annotation.AopCacheRelease;
 import com.htt.app.cache.exception.CacheException;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.*;
-
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
+import org.springframework.stereotype.Component;
 
 /**
  * 缓存切面类
  * Created by sunnyLu on 2017/7/18.
  */
-@Aspect
+@Aspect  //申明一个切面
+@EnableAspectJAutoProxy //启用@Aspect支持，默认使用jdk动态代理，基于接口，设为true则启用cglib的动态代理
 public class CacheAspect {
 
     @Pointcut(value = "@annotation(cacheRead)",argNames = "cacheRead")
@@ -67,3 +69,4 @@ public class CacheAspect {
 //    }
 
 }
+

@@ -17,8 +17,8 @@ import java.lang.annotation.Target;
 public @interface AopCacheable {
     Class type();//反序列化的类型
     Class[] keys();//对应redis中的key
-    int expires() default 0;//过期时间
+    int expires() default 0;//过期时间 单位：秒
     String expiresPattern() default ExpiresPattern.PATTERN_COMMON; //过期策略匹配ehcache/redis
     CacheSource source();//来源 例：pledge_service
-    boolean ehcacheEnable() default true; //是否启用ehcache本地缓存
+    boolean ehcacheEnable() default false; //是否启用ehcache本地缓存
 }

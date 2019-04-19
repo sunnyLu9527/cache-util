@@ -3,7 +3,6 @@ package com.htt.app.cache.utils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
-import com.htt.framework.util.PagingResult;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
@@ -48,20 +47,20 @@ public class FastJsonUtils {
         return list;
     }
 
-    public static <T> PagingResult<T> JsonToPagingResult(String jsonString, Class<T> cls) {
-        PagingResult<T> pagingResult = new PagingResult<T>();
-        try {
-            pagingResult = JSON.parseObject(jsonString, new
-                    TypeReference<PagingResult<T>>() {
-                    });
-            //解决类型擦除，须要拼装
-            List<T> list = JSON.parseArray(JSON.parseObject(jsonString).getString("rows"), cls);
-            pagingResult.setRows(list);
-        } catch (Exception e) {
-            logger.error("Json Deserialize Error:"+jsonString+","+cls.getSimpleName(),e);
-        }
-        return pagingResult;
-    }
+//    public static <T> PagingResult<T> JsonToPagingResult(String jsonString, Class<T> cls) {
+//        PagingResult<T> pagingResult = new PagingResult<T>();
+//        try {
+//            pagingResult = JSON.parseObject(jsonString, new
+//                    TypeReference<PagingResult<T>>() {
+//                    });
+//            //解决类型擦除，须要拼装
+//            List<T> list = JSON.parseArray(JSON.parseObject(jsonString).getString("rows"), cls);
+//            pagingResult.setRows(list);
+//        } catch (Exception e) {
+//            logger.error("Json Deserialize Error:"+jsonString+","+cls.getSimpleName(),e);
+//        }
+//        return pagingResult;
+//    }
 
     public static <T> Map<String, T> JsonToMap(String jsonString,Class<T> cls) {
         Map<String, T> map = new HashMap<String, T>();
