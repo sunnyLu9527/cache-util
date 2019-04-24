@@ -1,10 +1,13 @@
 package com.htt.app.cache.aspect;
 
 import com.htt.app.cache.handler.CacheHandlerFactory;
+import com.htt.app.cache.utils.FastJsonUtils;
 import com.htt.app.cache.utils.JedisUtils;
 import com.htt.app.cache.annotation.AopCacheable;
 import com.htt.app.cache.annotation.AopCacheRelease;
 import com.htt.app.cache.exception.CacheException;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.*;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
@@ -18,6 +21,8 @@ import org.springframework.stereotype.Component;
 @EnableAspectJAutoProxy //启用@Aspect支持，默认使用jdk动态代理，基于接口，设为true则启用cglib的动态代理
 public class CacheAspect {
 
+    Logger logger = LogManager.getLogger(CacheAspect.class);
+
     @Pointcut(value = "@annotation(cacheRead)",argNames = "cacheRead")
     public void pointcut(AopCacheable cacheRead){}
 
@@ -27,9 +32,13 @@ public class CacheAspect {
 
     @Around(value = "pointcut(cacheRead)")
     public Object readCache(ProceedingJoinPoint jp,AopCacheable cacheRead) throws Throwable{
-        //TODO redis缓存层异常 接口不能失败
-        CacheHandlerFactory handlerFactory = new CacheHandlerFactory().getInstance(cacheRead);
-        return handlerFactory.readCache(jp, cacheRead);
+        try {
+            CacheHandlerFactory handlerFactory = new CacheHandlerFactory().getInstance(cacheRead);
+            return handlerFactory.readCache(jp, cacheRead);
+        } catch (Throwable throwable) {
+            logger.error("Cache Error:",throwable);
+            return jp.proceed(jp.getArgs());
+        }
     }
 
     @AfterReturning(value = "pointcut2(cacheRelease)")

@@ -15,5 +15,5 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 public @interface AopCacheRelease {
     Class[] keys();//对应redis中的key
-    CacheSource source();//来源 例：pledge_service
+    CacheSource source() default CacheSource.NONE;//来源 例：Zeus
 }

@@ -5,16 +5,8 @@ package com.htt.app.cache.enums;
  */
 public enum CacheSource {
 
-    PLEDGE_SERVICE("PledgeService"),
-    LOAN_SERVICE("LoanService"),
-    USER_SERVICE("UserService"),
-    WEB_SERVICE("WebService"),
-    MY_SERVICE("MyService"),
-    WARRANT_SERVICE("WarrantService"),
-    MATERIAL_SERVICE("MaterialService"),
-    DEBT_SERVICE("DebtService"),
-    CASHLOAN_SERVICE("CashLoanService"),
-    PRODUCT_SERVICE("ProductService");
+    NONE(""),
+    ZEUS("Zeus");
 
     /**
      * 创建一个新的实例 StatisticsOperate.

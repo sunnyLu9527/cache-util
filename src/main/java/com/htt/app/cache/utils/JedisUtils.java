@@ -2,14 +2,11 @@ package com.htt.app.cache.utils;
 
 
 import com.htt.app.cache.enums.CacheSource;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
-import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisPool;
-import redis.clients.jedis.JedisPoolConfig;
+import redis.clients.jedis.*;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * jedis缓存工具类
@@ -17,7 +14,7 @@ import java.util.Set;
  */
 public class JedisUtils {
 
-    public final static int DATA_BASE = 2;
+    public final static int DATA_BASE = 3;
     private final static String HTT = "HTT_";
     public final static Integer ONE_DAY_CACHE=3600*24;
     public final static Integer THREE_DAY_CACHE=3600*24*3;
@@ -194,8 +191,8 @@ public class JedisUtils {
         try {
             jedis = getJedis(dataBase);
             for (Class key : keys){
-                Set<String> keySet = getKeysByPattern(jedis,key.getSimpleName(),source);
-                if (keySet == null || keySet.size() == 0)
+                List<String> keySet = getKeysByPattern(jedis,key.getSimpleName(),source);
+                if (CollectionUtils.isEmpty(keySet))
                     continue;
                 jedis.del(keySet.toArray(new String[keySet.size()]));
             }
@@ -209,9 +206,20 @@ public class JedisUtils {
      * @param pattern
      * @return
      */
-    private static Set<String> getKeysByPattern(Jedis jedis,String pattern,CacheSource source){
-        //TODO 清除缓存时keys全局查损耗性能
-        return jedis.keys("*"+source.getDes()+"*"+pattern+"*");
+    private static List<String> getKeysByPattern(Jedis jedis,String pattern,CacheSource source){
+        ScanParams params = new ScanParams();
+        params.match("*"+source.getDes()+"*"+pattern+"*");
+        params.count(100);
+        String cursor = ScanParams.SCAN_POINTER_START;
+        List<String> keyList = new LinkedList<>();
+        while (true){
+            ScanResult<String> result = jedis.scan(cursor,params);
+            keyList.addAll(result.getResult());
+            if (ScanParams.SCAN_POINTER_START.equals(result.getStringCursor())){
+                return keyList;
+            }
+            cursor = result.getStringCursor();
+        }
     }
 
     public static void returnJedis(Jedis jedis){
