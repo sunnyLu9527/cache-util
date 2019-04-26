@@ -19,6 +19,6 @@ public @interface AopCacheable {
     Class[] keys();//对应redis中的key
     int expires() default 0;//过期时间 单位：秒
     String expiresPattern() default ExpiresPattern.PATTERN_COMMON; //过期策略匹配ehcache/redis
-    CacheSource source();//来源 例：pledge_service
+    CacheSource source() default CacheSource.NONE;//来源 例：pledge_service
     boolean ehcacheEnable() default false; //是否启用ehcache本地缓存
 }

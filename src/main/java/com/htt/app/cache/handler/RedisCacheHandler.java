@@ -72,7 +72,7 @@ public class RedisCacheHandler extends CacheHandler {
     }
 
     /**
-     * 根据类名、方法名和参数生成filed
+     * 根据当前类全路径+方法名+参数生成filed
      * @param clazzName
      * @param methodName
      * @param args 方法参数
@@ -89,7 +89,7 @@ public class RedisCacheHandler extends CacheHandler {
     }
 
     /**
-     * 根据类名；来源生成key
+     * 根据来源+方法名+配置的类名，生成key
      * @param source
      * @return
      */
