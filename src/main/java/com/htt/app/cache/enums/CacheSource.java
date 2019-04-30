@@ -6,6 +6,7 @@ package com.htt.app.cache.enums;
 public enum CacheSource {
 
     NONE(""),
+    VENUS("Venus"),
     ZEUS("Zeus");
 
     /**

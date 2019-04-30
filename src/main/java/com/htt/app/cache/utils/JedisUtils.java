@@ -1,7 +1,12 @@
 package com.htt.app.cache.utils;
 
 
+import com.htt.app.cache.annotation.AopCacheRelease;
 import com.htt.app.cache.enums.CacheSource;
+import com.htt.app.cache.exception.CacheException;
+import org.aspectj.lang.JoinPoint;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import redis.clients.jedis.*;
@@ -14,8 +19,9 @@ import java.util.*;
  */
 public class JedisUtils {
 
-    public final static int DATA_BASE = 3;
-    private final static String HTT = "HTT_";
+    static Logger logger = LoggerFactory.getLogger(JedisUtils.class);
+    public final static int DATA_BASE = 9;
+    private final static String HTT = "CACHE_";
     public final static Integer ONE_DAY_CACHE=3600*24;
     public final static Integer THREE_DAY_CACHE=3600*24*3;
 
@@ -191,11 +197,84 @@ public class JedisUtils {
         try {
             jedis = getJedis(dataBase);
             for (Class key : keys){
-                List<String> keySet = getKeysByPattern(jedis,key.getSimpleName(),source);
-                if (CollectionUtils.isEmpty(keySet))
+                List<String> keyList = getKeysByPattern(jedis,key.getSimpleName(),source);
+                if (CollectionUtils.isEmpty(keyList))
                     continue;
-                jedis.del(keySet.toArray(new String[keySet.size()]));
+                jedis.del(keyList.toArray(new String[keyList.size()]));
             }
+        } finally {
+            returnJedis(jedis);
+        }
+    }
+
+    /**
+     * 模糊匹配移除key
+     * @param dataBase 库索引
+     */
+    public static void delPatternFields(JoinPoint joinPoint,int dataBase, AopCacheRelease cacheRelease){
+        Jedis jedis = null;
+        try {
+            StringBuilder match = new StringBuilder();
+            Object[] paramValues = joinPoint.getArgs();
+            if(paramValues == null){
+                return;
+            }
+            jedis = getJedis(dataBase);
+            //获取到所有符合的keys
+            List<String> keyList = new LinkedList<>();
+            for (Class key : cacheRelease.keys()){
+                keyList.addAll(getKeysByPattern(jedis,key.getSimpleName(),cacheRelease.source()));
+            }
+            if (CollectionUtils.isEmpty(keyList)){
+                return;
+            }
+
+            //获取到匹配field的字符串
+            String fieldPattern = cacheRelease.filedPattern();
+            if (fieldPattern.indexOf("#") < 0){
+                throw new CacheException("filedPattern is invalid...");
+            }
+            int index = Integer.valueOf(fieldPattern.substring(fieldPattern.indexOf("{")+1,fieldPattern.indexOf("}")));
+            if (fieldPattern.indexOf(".") >= 0){//反射获取值
+                String pojoMethod = fieldPattern.substring(fieldPattern.indexOf(".")+1,fieldPattern.length());
+                try {
+                    match = match.append("*.").append(ReflectionUtils.invokeMethod(paramValues[index],pojoMethod,new Object[0]));
+                } catch (Exception e) {
+                    logger.warn("Reflection Error:",e);
+                }
+            } else {
+                match = match.append("*.").append(paramValues[index]);
+            }
+            match = match.append("*");//最后追加一个模糊匹配
+            logger.warn("format the match pattern "+match);
+
+            ScanParams scanParams = new ScanParams();
+            scanParams.match(match.toString());
+            scanParams.count(10);//这里有可能会错误匹配到其他的fields，但是讲道理概率不高，暂时返回十个
+
+            for(String key : keyList){
+                logger.warn("get key "+key);
+                String cursor = ScanParams.SCAN_POINTER_START;
+                List<Map.Entry<String, String>> entryList = new LinkedList<>();
+                while (true){
+                    ScanResult<Map.Entry<String, String>> scanResult = jedis.hscan(key,cursor,scanParams);
+                    entryList.addAll(scanResult.getResult());
+                    if (ScanParams.SCAN_POINTER_START.equals(scanResult.getStringCursor())){
+                        break;
+                    }
+                    cursor = scanResult.getStringCursor();
+                }
+                if (CollectionUtils.isEmpty(entryList)){
+                    continue;
+                }
+                String[] filedArray = new String[entryList.size()];
+                for (int i = 0; i < entryList.size(); i++) {
+                    filedArray[i] = entryList.get(i).getKey();
+                    logger.warn(filedArray[i]+" need to be removed");
+                }
+                jedis.hdel(key,filedArray);
+            }
+
         } finally {
             returnJedis(jedis);
         }

@@ -1,17 +1,21 @@
 package com.htt.app.cache.aspect;
 
+import com.htt.app.cache.annotation.AopCacheGroup;
 import com.htt.app.cache.handler.CacheHandlerFactory;
 import com.htt.app.cache.utils.FastJsonUtils;
 import com.htt.app.cache.utils.JedisUtils;
 import com.htt.app.cache.annotation.AopCacheable;
 import com.htt.app.cache.annotation.AopCacheRelease;
 import com.htt.app.cache.exception.CacheException;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
+import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.*;
+import org.aspectj.lang.reflect.CodeSignature;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 /**
  * 缓存切面类
@@ -21,13 +25,16 @@ import org.springframework.stereotype.Component;
 @EnableAspectJAutoProxy //启用@Aspect支持，默认使用jdk动态代理，基于接口，设为true则启用cglib的动态代理
 public class CacheAspect {
 
-    Logger logger = LogManager.getLogger(CacheAspect.class);
+    Logger logger = LoggerFactory.getLogger(CacheAspect.class);
 
     @Pointcut(value = "@annotation(cacheRead)",argNames = "cacheRead")
     public void pointcut(AopCacheable cacheRead){}
 
     @Pointcut(value = "@annotation(cacheRelease)",argNames = "cacheRelease")
     public void pointcut2(AopCacheRelease cacheRelease){}
+
+    @Pointcut(value = "@annotation(cacheGroup)",argNames = "cacheGroup")
+    public void pointcut3(AopCacheGroup cacheGroup){}
 
 
     @Around(value = "pointcut(cacheRead)")
@@ -42,16 +49,20 @@ public class CacheAspect {
     }
 
     @AfterReturning(value = "pointcut2(cacheRelease)")
-    public void releaseCache(AopCacheRelease cacheRelease){
-        //得到key
-        Class[] keys = cacheRelease.keys();
-        if (keys == null || keys.length == 0){
-            throw new CacheException("the annotation '"+cacheRelease.getClass().getSimpleName()+"' must be contains the attribute keys");
-        } else if (cacheRelease.source() == null){
-            throw new CacheException("the annotation '"+cacheRelease.getClass().getSimpleName()+"' must be contains the attribute source");
+    public void releaseCache(JoinPoint joinPoint,AopCacheRelease cacheRelease){
+        if (StringUtils.isEmpty(cacheRelease.filedPattern())){//移除所有匹配class的key
+            JedisUtils.delPatternKeys(JedisUtils.DATA_BASE, cacheRelease.keys(),cacheRelease.source());
+        } else { //移除所有匹配class的key中匹配的fields
+            JedisUtils.delPatternFields(joinPoint,JedisUtils.DATA_BASE,cacheRelease);
         }
-        // 清除对应缓存
-        JedisUtils.delPatternKeys(JedisUtils.DATA_BASE, keys,cacheRelease.source());
+    }
+
+    @AfterReturning(value = "pointcut3(cacheGroup)")
+    public void releaseCacheGroup(JoinPoint joinPoint,AopCacheGroup cacheGroup){
+        if (cacheGroup.releaseGroup().length <= 0) return;
+        for (AopCacheRelease cacheRelease : cacheGroup.releaseGroup()){
+            JedisUtils.delPatternFields(joinPoint,JedisUtils.DATA_BASE,cacheRelease);
+        }
     }
 
 //    @AfterReturning("pointcut(parameter)")

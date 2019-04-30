@@ -15,5 +15,6 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 public @interface AopCacheRelease {
     Class[] keys();//对应redis中的key
+    String filedPattern() default "";  //匹配须要移除的field，基本数据类型请使用#{0};对象类型请使用#{0}.getXXX TODO filedPattern只支持单个,移除存在误差，多个的情况太复杂，须要配合使用组合注解来实现精确移除指定的field,目前暂不支持
     CacheSource source() default CacheSource.NONE;//来源 例：Zeus
 }

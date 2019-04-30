@@ -80,7 +80,7 @@ public class RedisCacheHandler extends CacheHandler {
      */
     private String genFiled(String clazzName, String methodName, Object[] args) {
         StringBuilder sb = new StringBuilder(clazzName).append(".").append(methodName);
-        for (Object obj : args) {
+        for (Object obj : args) {//TODO 如果是对象的话，提供field支持
             if (obj != null)
                 sb.append(".").append(obj.toString());
         }

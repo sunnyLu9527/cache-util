@@ -33,7 +33,7 @@ public abstract class CacheHandler {
 
     public String genEcacheKey(String clazzName, String methodName, Object[] args,CacheSource source) {
         StringBuilder sb = new StringBuilder(source.getDes()).append(clazzName).append(".").append(methodName);
-        for (Object obj : args) {
+        for (Object obj : args) {//TODO 如果是对象的话，提供field支持
             if (obj != null)
                 sb.append(".").append(obj.toString());
         }

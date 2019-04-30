@@ -1,7 +1,7 @@
 package com.htt.app.cache.utils;
 
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
@@ -18,7 +18,7 @@ public class PropertiesUtils {
 
     static String path = "app.properties";
 
-    static Logger logger = LogManager.getLogger(PropertiesUtils.class);
+    static Logger logger = LoggerFactory.getLogger(PropertiesUtils.class);
 
     static void init(String path){
         ResourceLoader loader = new DefaultResourceLoader();
